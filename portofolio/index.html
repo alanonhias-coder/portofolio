@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loris-Alan N'Ghouman — Dev & Sécurité</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        :root {
+            --bg: #0D1117;
+            --surface: #141B24;
+            --elevated: #1E2A3A;
+            --border: #253040;
+            --gold: #D4A853;
+            --gold-lt: #E8C47A;
+            --teal: #7FDBCA;
+            --teal-dk: #4EC9B0;
+            --text: #EAEAEA;
+            --muted: #7A8FA0;
+            --disp: 'Space Grotesk', sans-serif;
+            --body: 'Inter', sans-serif;
+            --mono: 'JetBrains Mono', monospace;
+        }
+        html {
+            scroll-behavior: smooth;
+        }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--body);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* ── NAV ── */
+        nav {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 1.1rem 5vw;
+            background: rgba(13, 17, 23, .88);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid rgba(212, 168, 83, .12);
+            transition: padding .3s;
+        }
+        .logo {
+            font-family: var(--disp); font-weight: 700; font-size: 1.15rem;
+            color: var(--gold); letter-spacing: .06em; text-decoration: none;
+        }
+        .logo span { color: var(--teal); }
+        .nav-links { display: flex; gap: 2.2rem; list-style: none; }
+        .nav-links a {
+            font-family: var(--mono); font-size: .75rem; color: var(--muted);
+            text-decoration: none; letter-spacing: .12em;
+            transition: color .2s;
+        }
+        .nav-links a:hover { color: var(--gold); }
+        .nav-toggle { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 4px; }
+        .nav-toggle span { display: block; width: 22px; height: 1.5px; background: var(--muted); transition: .3s; }
+
+        /* ── HERO ── */
+        #hero {
+            position: relative; min-height: 100vh;
+            display: flex; align-items: center;
+            padding: 0 5vw; overflow: hidden;
+        }
+        #circuit { position: absolute; inset: 0; width: 100%; height: 100%; opacity: .18; pointer-events: none; }
+        .hero-glow {
+            position: absolute; width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(212, 168, 83, .07) 0%, transparent 70%);
+            top: 50%; left: 30%; transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+        .hero-content { position: relative; z-index: 2; max-width: 680px; }
+        .eyebrow {
+            font-family: var(--mono); font-size: .82rem; color: var(--teal);
+            letter-spacing: .22em; margin-bottom: 1.6rem;
+            display: flex; align-items: center; gap: .6rem;
+        }
+        .eyebrow::before {
+            content: ''; display: inline-block; width: 28px; height: 1px; background: var(--teal);
+        }
+        .hero-name {
+            font-family: var(--disp);
+            font-size: clamp(2.8rem, 6.5vw, 5.5rem);
+            font-weight: 700; line-height: 1.06; margin-bottom: 1rem;
+        }
+        .hero-name .grad {
+            background: linear-gradient(130deg, var(--gold) 0%, var(--gold-lt) 40%, var(--teal) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        .hero-role {
+            font-family: var(--disp); font-size: clamp(1rem, 2.2vw, 1.4rem);
+            color: var(--muted); margin-bottom: 1.8rem; font-weight: 300;
+            min-height: 2em;
+        }
+        .typed { color: var(--gold-lt); font-weight: 500; }
+        .cursor { animation: blink .8s step-end infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
+        .hero-desc {
+            font-size: .98rem; color: var(--muted);
+            max-width: 500px; margin-bottom: 2.5rem; line-height: 1.85;
+        }
+        .cta-row { display: flex; gap: 1rem; flex-wrap: wrap; }
+        .btn {
+            display: inline-flex; align-items: center; gap: .5rem;
+            padding: .82rem 1.8rem; border-radius: 7px;
+            font-family: var(--disp); font-weight: 600; font-size: .88rem;
+            text-decoration: none; cursor: pointer; border: none;
+            transition: all .22s ease; letter-spacing: .02em;
+        }
+        .btn-primary { background: var(--gold); color: #0D1117; }
+        .btn-primary:hover { background: var(--gold-lt); transform: translateY(-2px); box-shadow: 0 8px 28px rgba(212, 168, 83, .28); }
+        .btn-outline { background: transparent; color: var(--gold); border: 1.5px solid rgba(212, 168, 83, .5); }
+        .btn-outline:hover { background: rgba(212, 168, 83, .08); transform: translateY(-2px); border-color: var(--gold); }
+        .scroll-hint {
+            position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%);
+            display: flex; flex-direction: column; align-items: center; gap: .4rem;
+            color: var(--muted); font-family: var(--mono); font-size: .7rem; letter-spacing: .15em;
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(6px); } }
+        .scroll-hint::after {
+            content: ''; display: block; width: 1px; height: 36px;
+            background: linear-gradient(180deg, var(--muted), transparent);
+        }
+
+        /* ── SECTIONS ── */
+        .section { padding: 6rem 5vw; max-width: 1120px; margin: 0 auto; }
+        .section-full { padding: 6rem 5vw; }
+        .s-label {
+            font-family: var(--mono); font-size: .7rem; color: var(--teal);
+            letter-spacing: .28em; text-transform: uppercase; margin-bottom: .5rem;
+            display: flex; align-items: center; gap: .6rem;
+        }
+        .s-label::before { content: '// '; }
+        .s-title {
+            font-family: var(--disp);
+            font-size: clamp(1.7rem, 3.5vw, 2.6rem);
+            font-weight: 700; margin-bottom: 3rem;
+        }
+        .s-title .accent { color: var(--gold); }
+        .divider { border: none; height: 1px; background: linear-gradient(90deg, var(--gold), var(--teal), transparent); margin: 0; }
+
+        /* ── ABOUT ── */
+        #about { background: var(--surface); }
+        .about-grid { display: grid; grid-template-columns: 220px 1fr; gap: 4rem; align-items: center; max-width: 1120px; margin: 0 auto; }
+        .avatar-wrap { position: relative; width: 200px; height: 200px; margin: 0 auto; }
+        .avatar-ring {
+            position: absolute; inset: -6px; border-radius: 50%;
+            background: conic-gradient(var(--gold), var(--teal), var(--gold));
+            animation: spin 6s linear infinite;
+        }
+        .avatar-ring-inner { position: absolute; inset: 3px; border-radius: 50%; background: var(--surface); }
+        .avatar-inner {
+            position: relative; z-index: 1; width: 100%; height: 100%; border-radius: 50%;
+            background: var(--elevated);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 4.5rem;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .about-text h3 {
+            font-family: var(--disp); font-size: 1.5rem; font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        .about-text p { color: var(--muted); margin-bottom: 1rem; line-height: 1.82; }
+        .about-text strong { color: var(--text); font-weight: 500; }
+        .tags { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1.5rem; }
+        .tag {
+            font-family: var(--mono); font-size: .72rem;
+            padding: .3rem .75rem; border-radius: 4px;
+            background: var(--elevated); border: 1px solid var(--border);
+            color: var(--muted);
+        }
+        .tag-gold { border-color: rgba(212, 168, 83, .35); color: var(--gold); }
+        .tag-teal { border-color: rgba(127, 219, 202, .35); color: var(--teal); }
+
+        /* ── SKILLS ── */
+        #skills { background: var(--bg); }
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 1.2rem;
+        }
+        .skill-card {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 12px; padding: 1.5rem;
+            transition: all .3s ease; position: relative; overflow: hidden;
+        }
+        .skill-card::after {
+            content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, var(--gold), var(--teal));
+            transform: scaleX(0); transform-origin: left;
+            transition: transform .3s ease;
+        }
+        .skill-card:hover::after { transform: scaleX(1); }
+        .skill-card:hover { transform: translateY(-3px); border-color: rgba(212, 168, 83, .3); }
+        .sk-icon { font-size: 1.6rem; margin-bottom: .8rem; }
+        .sk-title {
+            font-family: var(--disp); font-weight: 600; font-size: .9rem;
+            color: var(--gold); margin-bottom: .9rem;
+        }
+        .sk-list { list-style: none; display: flex; flex-direction: column; gap: .35rem; }
+        .sk-list li {
+            font-family: var(--mono); font-size: .76rem; color: var(--muted);
+            display: flex; align-items: center; gap: .5rem;
+        }
+        .sk-list li::before { content: '▸'; color: var(--teal); font-size: .65rem; }
+
+        /* ── PROJECTS ── */
+        #projects { background: var(--surface); }
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.4rem;
+        }
+        .proj-card {
+            background: var(--bg); border: 1px solid var(--border);
+            border-radius: 12px; padding: 1.8rem;
+            transition: all .3s ease; position: relative; overflow: hidden;
+            display: flex; flex-direction: column; gap: 1rem;
+        }
+        .proj-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, var(--gold), var(--teal));
+            transform: scaleX(0); transform-origin: left;
+            transition: transform .35s ease;
+        }
+        .proj-card:hover::before { transform: scaleX(1); }
+        .proj-card:hover { transform: translateY(-4px); border-color: rgba(212, 168, 83, .25); box-shadow: 0 12px 40px rgba(0,0,0,.3); }
+        .proj-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+        .proj-icon { font-size: 2rem; line-height: 1; }
+        .proj-status {
+            font-family: var(--mono); font-size: .65rem;
+            padding: .25rem .6rem; border-radius: 3px;
+            background: rgba(127, 219, 202, .1); color: var(--teal);
+            border: 1px solid rgba(127, 219, 202, .2);
+            white-space: nowrap;
+        }
+        .proj-status.live { background: rgba(74, 222, 128, .1); color: #4ADE80; border-color: rgba(74, 222, 128, .2); }
+        .proj-name { font-family: var(--disp); font-weight: 700; font-size: 1.08rem; }
+        .proj-desc { font-size: .865rem; color: var(--muted); line-height: 1.75; flex: 1; }
+        .proj-tags { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: auto; }
+        .ptag {
+            font-family: var(--mono); font-size: .68rem;
+            padding: .22rem .55rem; border-radius: 3px;
+            background: var(--elevated); color: var(--teal-dk);
+        }
+
+        /* ── EDUCATION ── */
+        #education { background: var(--bg); }
+        .timeline {
+            position: relative; padding-left: 2.2rem;
+            display: flex; flex-direction: column; gap: 2.2rem;
+        }
+        .timeline::before {
+            content: ''; position: absolute; left: 4px; top: 0; bottom: 0; width: 1px;
+            background: linear-gradient(180deg, var(--gold), var(--teal), transparent);
+        }
+        .tl-item { position: relative; }
+        .tl-dot {
+            position: absolute; left: -2.1rem; top: .35rem;
+            width: 10px; height: 10px; border-radius: 50%;
+            background: var(--gold);
+            box-shadow: 0 0 0 3px rgba(212, 168, 83, .18), 0 0 14px rgba(212, 168, 83, .4);
+        }
+        .tl-dot.teal { background: var(--teal); box-shadow: 0 0 0 3px rgba(127, 219, 202, .18), 0 0 14px rgba(127, 219, 202, .35); }
+        .tl-year {
+            font-family: var(--mono); font-size: .72rem;
+            color: var(--teal); margin-bottom: .22rem;
+        }
+        .tl-name {
+            font-family: var(--disp); font-weight: 600; font-size: 1rem; margin-bottom: .2rem;
+        }
+        .tl-place { font-size: .86rem; color: var(--muted); }
+
+        /* ── CONTACT ── */
+        #contact { background: var(--surface); }
+        .contact-inner { max-width: 600px; margin: 0 auto; text-align: center; }
+        .contact-inner p { color: var(--muted); margin-bottom: 2rem; line-height: 1.8; font-size: .96rem; }
+        .contact-links {
+            display: flex; justify-content: center;
+            flex-wrap: wrap; gap: 1.5rem; margin-top: 2rem;
+        }
+        .c-link {
+            display: flex; align-items: center; gap: .5rem;
+            color: var(--muted); text-decoration: none;
+            font-family: var(--mono); font-size: .82rem;
+            transition: color .2s;
+        }
+        .c-link:hover { color: var(--gold); }
+
+        /* ── FOOTER ── */
+        footer {
+            padding: 2rem 5vw; text-align: center;
+            font-family: var(--mono); font-size: .7rem; color: var(--muted);
+            border-top: 1px solid var(--border);
+        }
+        footer span { color: var(--gold); }
+
+        /* ── REVEAL ── */
+        .reveal { opacity: 0; transform: translateY(28px); transition: opacity .55s ease, transform .55s ease; }
+        .reveal.in { opacity: 1; transform: translateY(0); }
+        .reveal-d1 { transition-delay: .1s; } .reveal-d2 { transition-delay: .2s; } .reveal-d3 { transition-delay: .3s; }
+
+        /* ── RESPONSIVE ── */
+        @media(max-width: 768px) {
+            .nav-links {
+                display: none; flex-direction: column; gap: 1.2rem;
+                position: fixed; inset: 0; top: 60px;
+                background: var(--bg); padding: 2rem;
+                z-index: 99;
+            }
+            .nav-links.open { display: flex; }
+            .nav-links a { font-size: 1rem; }
+            .nav-toggle { display: flex; }
+            #hero { padding: 5rem 1.5rem 3rem; }
+            .section, .section-full { padding: 4rem 1.5rem; }
+            .about-grid { grid-template-columns: 1fr; gap: 2rem; }
+            .avatar-wrap { width: 150px; height: 150px; }
+            .avatar-inner { font-size: 3.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav id="navbar">
+    <a class="logo" href="#hero">LA<span>_</span></a>
+    <ul class="nav-links" id="navmenu">
+        <li><a href="#about">à propos</a></li>
+        <li><a href="#skills">compétences</a></li>
+        <li><a href="#projects">projets</a></li>
+        <li><a href="#education">formation</a></li>
+        <li><a href="#contact">contact</a></li>
+    </ul>
+    <div class="nav-toggle" id="navtoggle" aria-label="Menu" role="button">
+        <span></span><span></span><span></span>
+    </div>
+</nav>
+
+<!-- ── HERO ── -->
+<section id="hero">
+    <canvas id="circuit"></canvas>
+    <div class="hero-glow"></div>
+    <div class="hero-content">
+        <p class="eyebrow">Développeur · Brazzaville, Congo</p>
+        <h1 class="hero-name">Ud Loris-Alan<br><span class="grad">ONHIAS N'GHOUMAN</span></h1>
+        <p class="hero-role">Je construis des expériences&nbsp;<span class="typed" id="typed-el"></span><span class="cursor">|</span></p>
+        <p class="hero-desc">
+            Étudiant en développement et futur spécialiste en cybersécurité. Je crée des applications mobiles, web et desktop — et je dirige <strong style="color:var(--text)">AL_SHOP</strong>, une boutique de réparation tech à Brazzaville.
+        </p>
+        <div class="cta-row">
+            <a href="#projects" class="btn btn-primary">Voir mes projets ↓</a>
+            <a href="#contact" class="btn btn-outline">Me contacter</a>
+        </div>
+    </div>
+    <div class="scroll-hint">scroll</div>
+</section>
+<hr class="divider">
+
+<!-- ── ABOUT ── -->
+<div id="about" class="section-full">
+    <div class="about-grid">
+        <div class="avatar-wrap reveal">
+            <div class="avatar-ring"></div>
+            <div class="avatar-ring-inner"></div>
+            <div class="avatar-inner">🧑‍💻</div>
+        </div>
+        <div class="about-text reveal reveal-d1">
+            <div class="s-label" style="margin-bottom:.4rem">qui suis-je</div>
+            <h2 class="s-title" style="margin-bottom:1.2rem">Loris-Alan <span class="accent">N'Ghouman</span></h2>
+            <p>Étudiant en Licence 2 à l'<strong>ESGAE</strong> (École Supérieure de Gestion et d'Administration des Entreprises), je combine formation académique et projets freelance concrets depuis Brazzaville.</p>
+            <p>Mon parcours couvre le développement <strong>mobile</strong> (Flutter/Firebase), <strong>web</strong> (JS, PHP) et <strong>desktop</strong> (Java, C#), avec une orientation croissante vers la cybersécurité. Je crois que les meilleures solutions tech naissent d'une compréhension profonde du contexte local.</p>
+            <p>Je dirige également <strong>AL_SHOP</strong>, un service de réparation et vente de téléphones et ordinateurs à Brazzaville — ce qui me donne une perspective unique entre le hardware et le software.</p>
+            <div class="tags">
+                <span class="tag tag-gold">📍 Brazzaville, Congo</span>
+                <span class="tag tag-teal">🎓 ESGAE L2</span>
+                <span class="tag">CCNA en cours</span>
+                <span class="tag">Freelance dev</span>
+                <span class="tag">AL_SHOP 🔧</span>
+                <span class="tag">FR / EN</span>
+            </div>
+        </div>
+    </div>
+</div>
+<hr class="divider">
+
+<!-- ── SKILLS ── -->
+<div id="skills" class="section-full">
+    <div style="max-width:1120px;margin:0 auto">
+        <div class="s-label">ce que je sais faire</div>
+        <h2 class="s-title">Compétences <span class="accent">techniques</span></h2>
+        <div class="skills-grid">
+            <div class="skill-card reveal">
+                <div class="sk-icon">📱</div>
+                <div class="sk-title">Mobile</div>
+                <ul class="sk-list">
+                    <li>Flutter &amp; Dart</li>
+                    <li>Firebase (Auth, Firestore)</li>
+                    <li>Provider Pattern</li>
+                    <li>Architecture feature-based</li>
+                    <li>Support FR / EN (i18n)</li>
+                </ul>
+            </div>
+            <div class="skill-card reveal reveal-d1">
+                <div class="sk-icon">🌐</div>
+                <div class="sk-title">Web</div>
+                <ul class="sk-list">
+                    <li>HTML / CSS / JavaScript</li>
+                    <li>PHP</li>
+                    <li>GitHub Pages (deploy)</li>
+                    <li>Responsive design</li>
+                    <li>E-commerce flows</li>
+                </ul>
+            </div>
+            <div class="skill-card reveal reveal-d2">
+                <div class="sk-icon">🖥️</div>
+                <div class="sk-title">Desktop &amp; Backend</div>
+                <ul class="sk-list">
+                    <li>Java (Swing, OOP)</li>
+                    <li>C# (.NET, Console)</li>
+                    <li>Python (scripts, PDF)</li>
+                    <li>Merise / UML</li>
+                </ul>
+            </div>
+            <div class="skill-card reveal">
+                <div class="sk-icon">🔐</div>
+                <div class="sk-title">Cybersécurité</div>
+                <ul class="sk-list">
+                    <li>Kali Linux / WSL2</li>
+                    <li>CCNA (en cours)</li>
+                    <li>Pentest — bases</li>
+                    <li>Vulnérabilités XSS / JS</li>
+                </ul>
+            </div>
+            <div class="skill-card reveal reveal-d1">
+                <div class="sk-icon">🗄️</div>
+                <div class="sk-title">Base de données</div>
+                <ul class="sk-list">
+                    <li>Firebase Firestore</li>
+                    <li>SQL / MySQL</li>
+                    <li>MCD Merise</li>
+                    <li>Modélisation ER</li>
+                </ul>
+            </div>
+            <div class="skill-card reveal reveal-d2">
+                <div class="sk-icon">🛠️</div>
+                <div class="sk-title">Outils</div>
+                <ul class="sk-list">
+                    <li>Git &amp; GitHub</li>
+                    <li>VS Code / IntelliJ</li>
+                    <li>FlutterFire CLI</li>
+                    <li>Docker (bases)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<hr class="divider">
+
+<!-- ── PROJECTS ── -->
+<div id="projects" class="section-full">
+    <div style="max-width:1120px;margin:0 auto">
+        <div class="s-label">ce que j'ai construit</div>
+        <h2 class="s-title">Mes <span class="accent">projets</span></h2>
+        <div class="projects-grid">
+
+            <div class="proj-card reveal">
+                <div class="proj-head">
+                    <div class="proj-icon">⚖️</div>
+                    <span class="proj-status">En cours</span>
+                </div>
+                <div class="proj-name">Juri Congo</div>
+                <p class="proj-desc">Plateforme mobile &amp; web d'information juridique — droit congolais et OHADA. Architecture feature-based, support bilingue FR/EN, authentification Firebase et Firestore comme backend.</p>
+                <div class="proj-tags">
+                    <span class="ptag">Flutter</span>
+                    <span class="ptag">Firebase</span>
+                    <span class="ptag">Provider</span>
+                    <span class="ptag">OHADA</span>
+                    <span class="ptag">i18n</span>
+                </div>
+            </div>
+
+            <div class="proj-card reveal reveal-d1">
+                <div class="proj-head">
+                    <div class="proj-icon">🥛</div>
+                    <span class="proj-status live">Live</span>
+                </div>
+                <div class="proj-name">Kimia Yaourt</div>
+                <p class="proj-desc">Site e-commerce complet pour une marque de yaourt artisanal basée à Kombo. Panier, checkout via WhatsApp, QR code de commande et posters promotionnels. Déployé sur GitHub Pages.</p>
+                <div class="proj-tags">
+                    <span class="ptag">HTML/CSS/JS</span>
+                    <span class="ptag">E-commerce</span>
+                    <span class="ptag">WhatsApp API</span>
+                    <span class="ptag">GitHub Pages</span>
+                </div>
+            </div>
+
+            <div class="proj-card reveal reveal-d2">
+                <div class="proj-head">
+                    <div class="proj-icon">🎓</div>
+                    <span class="proj-status">Terminé</span>
+                </div>
+                <div class="proj-name">BulletinScolaire</div>
+                <p class="proj-desc">Application desktop Java Swing pour la gestion des bulletins scolaires et des délibérations de jury. Interface complète avec validation des données, saisie de notes et génération de résultats.</p>
+                <div class="proj-tags">
+                    <span class="ptag">Java</span>
+                    <span class="ptag">Swing</span>
+                    <span class="ptag">OOP</span>
+                    <span class="ptag">Desktop</span>
+                </div>
+            </div>
+
+            <div class="proj-card reveal">
+                <div class="proj-head">
+                    <div class="proj-icon">📋</div>
+                    <span class="proj-status">Terminé</span>
+                </div>
+                <div class="proj-name">DecisionJuryApp</div>
+                <p class="proj-desc">Application console C# pour la prise de décisions de jury académique. Règles métier complexes, validations multi-niveaux et rapports structurés générés en sortie.</p>
+                <div class="proj-tags">
+                    <span class="ptag">C#</span>
+                    <span class="ptag">.NET</span>
+                    <span class="ptag">Console</span>
+                    <span class="ptag">Validation</span>
+                </div>
+            </div>
+
+            <div class="proj-card reveal reveal-d1">
+                <div class="proj-head">
+                    <div class="proj-icon">👥</div>
+                    <span class="proj-status">Terminé</span>
+                </div>
+                <div class="proj-name">SGRH</div>
+                <p class="proj-desc">Système de gestion des ressources humaines — conception UML complète (diagramme de classes, cas d'usage) et génération de rapports PDF via ReportLab. Modélisation Merise avancée.</p>
+                <div class="proj-tags">
+                    <span class="ptag">Python</span>
+                    <span class="ptag">UML</span>
+                    <span class="ptag">Merise</span>
+                    <span class="ptag">ReportLab</span>
+                </div>
+            </div>
+
+            <div class="proj-card reveal reveal-d2">
+                <div class="proj-head">
+                    <div class="proj-icon">🔧</div>
+                    <span class="proj-status live">Actif</span>
+                </div>
+                <div class="proj-name">AL_SHOP</div>
+                <p class="proj-desc">Ma boutique de réparation et vente de téléphones et ordinateurs à Brazzaville. Diagnostics hardware, gestion de clientèle et support technique — l'entrepreneuriat tech au quotidien.</p>
+                <div class="proj-tags">
+                    <span class="ptag">Entrepreneuriat</span>
+                    <span class="ptag">Hardware</span>
+                    <span class="ptag">Brazzaville</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<hr class="divider">
+
+<!-- ── EDUCATION ── -->
+<div id="education" class="section-full">
+    <div style="max-width:800px;margin:0 auto">
+        <div class="s-label">mon parcours</div>
+        <h2 class="s-title">Formation &amp; <span class="accent">certifications</span></h2>
+        <div class="timeline">
+            <div class="tl-item reveal">
+                <div class="tl-dot"></div>
+                <div class="tl-year">2024 — présent</div>
+                <div class="tl-name">Licence 2 — Informatique &amp; Gestion</div>
+                <div class="tl-place">ESGAE — École Supérieure de Gestion et d'Administration des Entreprises, Brazzaville</div>
+            </div>
+            <div class="tl-item reveal reveal-d1">
+                <div class="tl-dot"></div>
+                <div class="tl-year">En cours</div>
+                <div class="tl-name">CCNA — Cisco Certified Network Associate</div>
+                <div class="tl-place">Cisco Networking Academy · Réseaux, routage, commutation</div>
+            </div>
+            <div class="tl-item reveal reveal-d2">
+                <div class="tl-dot teal"></div>
+                <div class="tl-year">Prévu</div>
+                <div class="tl-name">CyberOps Associate — Cisco</div>
+                <div class="tl-place">Analyse des menaces · SOC · Sécurité opérationnelle</div>
+            </div>
+            <div class="tl-item reveal">
+                <div class="tl-dot teal"></div>
+                <div class="tl-year">Prévu</div>
+                <div class="tl-name">DevNet Associate — Cisco</div>
+                <div class="tl-place">Automatisation réseau · APIs · Dev &amp; Sécurité</div>
+            </div>
+        </div>
+    </div>
+</div>
+<hr class="divider">
+
+<!-- ── CONTACT ── -->
+<div id="contact" class="section-full">
+    <div class="contact-inner reveal">
+        <div class="s-label">restons en contact</div>
+        <h2 class="s-title">Contactez-moi</h2>
+        <p>Vous avez un projet, une idée ou une opportunité ? Je suis ouvert aux collaborations et aux discussions. N'hésitez pas à me contacter via WhatsApp ou à visiter mon GitHub pour voir mes travaux.</p>
+<div class="contact-links reveal reveal-d2">
+    <a href="https://wa.me/242066838028" class="c-link" target="_blank" rel="noopener">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12.01 2.01c-5.52 0-10 4.48-10 10 0 1.76.46 3.42 1.27 4.88L2 22l5.29-1.39c1.4.76 2.99 1.19 4.72 1.19 5.52 0 10-4.48 10-10s-4.48-10-10-10zm4.84 14.23c-.22.62-1.27 1.21-1.74 1.27-.47.06-.94.3-3.04-.57-2.52-1.04-4.11-3.61-4.24-3.78-.12-.17-1.04-1.38-1.04-2.63 0-1.25.65-1.86.88-2.11.23-.25.5-.31.67-.31.17 0 .34.01.48.01.15.01.35-.06.55.42.2.49.69 1.68.75 1.8.06.12.1.27.02.43-.08.17-.18.27-.3.41-.12.14-.26.31-.37.42-.12.12-.25.25-.11.49.14.24.62 1.02 1.33 1.65.91.81 1.68 1.06 1.92 1.18.24.12.38.1.52-.06.14-.17.61-.71.77-.95.16-.24.33-.2.55-.12.23.09 1.45.68 1.7.8.25.12.42.18.48.28.06.1.06.58-.16 1.2z"/>
+        </svg>
+        WhatsApp
+    </a>
+
+    <a href="https://github.com/alanonhias-coder" class="c-link" target="_blank" rel="noopener">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12 2C6.48 2 2 6.58 2 12.26c0 4.53 2.87 8.37 6.84 9.73.5.09.68-.22.68-.49v-1.71c-2.78.62-3.37-1.37-3.37-1.37-.45-1.17-1.1-1.48-1.1-1.48-.9-.63.07-.62.07-.62 1 .07 1.52 1.05 1.52 1.05.88 1.55 2.32 1.1 2.88.84.09-.65.34-1.1.62-1.35-2.22-.26-4.56-1.14-4.56-5.05 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.28 2.75 1.05a9.36 9.36 0 0 1 2.5-.34c.85 0 1.7.11 2.5.34 1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.92-2.35 4.79-4.58 5.04.36.32.68.94.68 1.9v2.82c0 .27.18.59.69.49A10.27 10.27 0 0 0 22 12.26C22 6.58 17.52 2 12 2z"/>
+        </svg>
+        GitHub
+    </a>
+
+    <a href="#" class="c-link" target="_blank" rel="noopener">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.32 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93zM6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68zm1.39 9.94v-8.37H5.5v8.37z"/>
+        </svg>
+        LinkedIn
+    </a>
+</div>
+
+<footer>
+    <p>Conçu &amp; codé par <span>Ud Loris-Alan ONHIAS N'GHOUMAN</span> — Brazzaville, Congo &copy; 2026</p>
+</footer>
+
+<script>
+/* ── CIRCUIT CANVAS ── */
+(function(){
+    const cv=document.getElementById('circuit');
+    const cx=cv.getContext('2d');
+    function resize(){cv.width=window.innerWidth;cv.height=window.innerHeight}
+    resize();
+    window.addEventListener('resize',resize);
+
+    const N=55;
+    const pts=Array.from({length:N},()=>({
+        x:Math.random()*window.innerWidth,
+        y:Math.random()*window.innerHeight,
+        vx:(Math.random()-.5)*.28,
+        vy:(Math.random()-.5)*.28
+    }));
+
+    function frame(){
+        cx.clearRect(0,0,cv.width,cv.height);
+        pts.forEach(p=>{
+            p.x+=p.vx; p.y+=p.vy;
+            if(p.x<0||p.x>cv.width)p.vx*=-1;
+            if(p.y<0||p.y>cv.height)p.vy*=-1;
+        });
+        for(let i=0;i<N;i++){
+            for(let j=i+1;j<N;j++){
+                const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y;
+                const d=Math.sqrt(dx*dx+dy*dy);
+                if(d<160){
+                    cx.beginPath();
+                    cx.strokeStyle=`rgba(212,168,83,${(1-d/160)*.35})`;
+                    cx.lineWidth=.6;
+                    cx.moveTo(pts[i].x,pts[i].y);
+                    cx.lineTo(pts[j].x,pts[j].y);
+                    cx.stroke();
+                }
+            }
+            cx.beginPath();
+            cx.fillStyle='rgba(127,219,202,.7)';
+            cx.arc(pts[i].x,pts[i].y,1.6,0,Math.PI*2);
+            cx.fill();
+        }
+        requestAnimationFrame(frame);
+    }
+    frame();
+})();
+
+/* ── TYPED TEXT ── */
+(function(){
+    const words=['mobiles','web','desktop','sécurisées'];
+    let wi=0,ci=0,del=false;
+    const el=document.getElementById('typed-el');
+    function tick(){
+        const w=words[wi];
+        if(!del){el.textContent=w.slice(0,++ci);if(ci===w.length){del=true;setTimeout(tick,1800);return;}}
+        else{el.textContent=w.slice(0,--ci);if(ci===0){del=false;wi=(wi+1)%words.length;}}
+        setTimeout(tick,del?65:105);
+    }
+    tick();
+})();
+
+/* ── SCROLL REVEAL ── */
+(function(){
+    const io=new IntersectionObserver(entries=>{
+        entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in');});
+    },{threshold:.12});
+    document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+})();
+
+/* ── MOBILE NAV ── */
+(function(){
+    const toggle=document.getElementById('navtoggle');
+    const menu=document.getElementById('navmenu');
+    toggle.addEventListener('click',()=>menu.classList.toggle('open'));
+    menu.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>menu.classList.remove('open')));
+})();
+
+/* ── SMOOTH SCROLL ── */
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+    a.addEventListener('click',e=>{
+        const href = a.getAttribute('href');
+        if (href === '#') return; 
+        
+        e.preventDefault();
+        const t=document.querySelector(href);
+        if(t)t.scrollIntoView({behavior:'smooth'});
+    });
+});
+</script>
+</body>
+</html>
